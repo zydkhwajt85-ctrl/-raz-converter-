@@ -1,9 +1,11 @@
 import { getStore } from "@netlify/blobs";
 
 export default async (req) => {
-  const last = new URL(req.url).pathname.split("/").pop() || "";
-  const id = last.replace(/\.lua$/, "");
-  if (!/^[a-f0-9]{40}$/.test(id)) return new Response("Not found", { status: 404 });
+  const parts = new URL(req.url).pathname.split("/").filter(Boolean);
+  let id = parts.pop() || "";
+  if (id === "raw") id = parts.pop() || "";
+  id = id.replace(/\.lua$/, "");
+  if (!/^[A-Za-z0-9]{8,40}$/.test(id)) return new Response("Not found", { status: 404 });
 
   const code = await getStore("scripts").get(id);
   if (code === null) return new Response("Not found", { status: 404 });

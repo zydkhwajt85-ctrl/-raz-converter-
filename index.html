@@ -1,0 +1,67 @@
+<!doctype html><html lang="ar" dir="rtl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>محوّل السكربت</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:system-ui,sans-serif;color:#fff;background:linear-gradient(160deg,#0a1f5c,#1e5bff 60%,#4aa3ff);padding:16px}
+.wrap{max-width:640px;margin:0 auto}
+h1{text-align:center;font-size:24px;margin:12px 0 18px}
+.card{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:16px;padding:14px;margin-bottom:14px;backdrop-filter:blur(8px)}
+label{display:block;font-weight:600;margin-bottom:8px}
+textarea,.out{width:100%;height:200px;background:#0b1a4a;color:#e8f0ff;border:1px solid #3d6bff;border-radius:12px;padding:10px;font-family:monospace;font-size:14px;direction:ltr;text-align:left}
+.out{height:auto;min-height:70px;white-space:pre-wrap;word-break:break-all;margin:0}
+.row{display:flex;gap:10px;margin-top:10px}
+button{flex:1;border:0;border-radius:12px;padding:13px;font-size:16px;font-weight:600;cursor:pointer}
+.ghost{background:#fff;color:#1146d6}
+.main{background:#0a1f5c;color:#fff;width:100%;padding:15px;margin-bottom:14px;border:1px solid #6b96ff}
+.copy{background:#4aa3ff;color:#06173f}
+#file{display:none}
+</style></head><body><div class="wrap">
+<h1>محوّل السكربت إلى رابط</h1>
+
+<div class="card">
+  <label for="c">الصق السكربت هنا</label>
+  <textarea id="c" placeholder="print('Hello')"></textarea>
+  <div class="row">
+    <button class="ghost" onclick="document.getElementById('file').click()">📁 رفع ملف</button>
+    <input type="file" id="file" accept=".lua,.txt,.luau,text/plain">
+  </div>
+</div>
+
+<button class="main" id="go" onclick="convert()">🔗 تحويل إلى loadstring</button>
+
+<div class="card">
+  <label>رابط السكربت</label>
+  <pre class="out" id="out">سيظهر الرابط هنا بعد التحويل</pre>
+  <div class="row"><button class="copy" onclick="copyOut()">📋 نسخ</button></div>
+</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let result='';
+$('file').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{$('c').value=r.result};
+  r.readAsText(f);
+});
+async function convert(){
+  const code=$('c').value;
+  if(!code.trim()){$('out').textContent='اكتب أو ارفع سكربت أول';return}
+  const b=$('go');b.disabled=true;b.textContent='جاري التحويل...';
+  try{
+    const r=await fetch('/api/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
+    const d=await r.json();
+    result=d.error?'':d.loadstring;
+    $('out').textContent=d.error||d.loadstring;
+  }catch(e){$('out').textContent='صار خطأ، جرب مرة ثانية'}
+  b.disabled=false;b.textContent='🔗 تحويل إلى loadstring';
+}
+async function copyOut(){
+  if(!result)return;
+  try{await navigator.clipboard.writeText(result)}catch(e){
+    const t=document.createElement('textarea');t.value=result;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();
+  }
+  const b=document.querySelector('.copy');b.textContent='✅ تم النسخ';setTimeout(()=>b.textContent='📋 نسخ',1500);
+}
+</script></body></html>

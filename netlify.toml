@@ -1,3 +1,4 @@
+l
 [build]
   publish = "."
   functions = "netlify/functions"
@@ -8,21 +9,11 @@
   status = 200
 
 [[redirects]]
-  from = "/api/list"
-  to = "/.netlify/functions/list"
-  status = 200
-
-[[redirects]]
-  from = "/api/external"
-  to = "/.netlify/functions/external"
-  status = 200
-
-[[redirects]]
-  from = "/files/v1/scripts/:id"
-  to = "/.netlify/functions/raw"
-  status = 200
-
-[[redirects]]
   from = "/files/v1/loaders/:id"
+  to = "/.netlify/functions/loader"
+  status = 200
+
+[[redirects]]
+  from = "/:id/raw"
   to = "/.netlify/functions/loader"
   status = 200

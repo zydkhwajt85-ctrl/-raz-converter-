@@ -41,10 +41,10 @@ button{flex:1;border:0;border-radius:12px;padding:13px;font-size:16px;font-weigh
   <input type="text" id="q" placeholder="🔎 ابحث باسم الماب أو السكربت">
   <h2>📌 منشورة في موقعنا</h2>
   <div id="own"></div>
-  <h2>🌐 من ScriptBlox</h2>
+  <h2>🌐 سكربتات أخرى</h2>
   <div id="ext"></div>
   <div class="row"><button class="copy" id="more" style="display:none" onclick="loadExt(false)">تحميل المزيد</button></div>
-  <p class="note">سكربتات ScriptBlox من طرف ثالث وما تمت مراجعتها، استخدمها على مسؤوليتك.</p>
+  <p class="note">بعض السكربتات من مصادر خارجية وما تمت مراجعتها، استخدمها على مسؤوليتك.</p>
 </div>
 
 <div id="conv">
@@ -133,11 +133,11 @@ async function loadExt(reset){
     const d=await (await fetch('/api/external?page='+page+'&q='+encodeURIComponent(q))).json();
     if(d.error)throw 0;
     total=d.totalPages;ext=ext.concat(d.items);
-  }catch(e){box.textContent='تعذر جلب السكربتات من ScriptBlox الحين';$('more').style.display='none';return}
+  }catch(e){box.textContent='تعذر جلب السكربتات الحين';$('more').style.display='none';return}
   box.textContent='';
   if(!ext.length)box.textContent='ما لقيت نتائج';
   ext.forEach(i=>{
-    const tags=[[i.game],['ScriptBlox','s']];
+    const tags=[[i.game]];
     if(i.patched)tags.push(['Patched','w']);
     if(i.key)tags.push(['يحتاج Key','w']);
     card(box,tags,i.title,'https://scriptblox.com/api/script/raw/'+i.id);

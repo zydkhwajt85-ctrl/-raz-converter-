@@ -8,6 +8,16 @@
   status = 200
 
 [[redirects]]
+  from = "/api/list"
+  to = "/.netlify/functions/list"
+  status = 200
+
+[[redirects]]
+  from = "/api/external"
+  to = "/.netlify/functions/external"
+  status = 200
+
+[[redirects]]
   from = "/files/v1/loaders/:id"
   to = "/.netlify/functions/loader"
   status = 200

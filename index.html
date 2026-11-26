@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAZ CONVERTER</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#080808;color:#fff;
+ font-family:Arial,sans-serif;min-height:100vh;
+ background-image:radial-gradient(ellipse at top,#351010 0,transparent 48%);
+}
+header{
+ display:flex;justify-content:space-between;align-items:center;
+ padding:22px 7%;border-bottom:1px solid #252525;
+}
+.logo{font-size:24px;font-weight:900;color:#ff3030;letter-spacing:2px}
+.tag{color:#aaa;font-size:12px}
+main{max-width:850px;margin:65px auto;padding:0 18px}
+.hero{text-align:center;margin-bottom:35px}
+.hero h1{font-size:42px;margin:0 0 12px}
+.hero h1 span{color:#f22}
+.hero p{color:#999;font-size:14px}
+.card{
+ background:#111;border:1px solid #292929;
+ border-radius:16px;padding:22px;margin:17px 0;
+ box-shadow:0 10px 35px #0008;
+}
+.label{display:flex;justify-content:space-between;
+ margin-bottom:13px;font-weight:bold;font-size:14px}
+textarea{
+ width:100%;height:230px;resize:vertical;
+ background:#090909;color:#eee;border:1px solid #303030;
+ border-radius:10px;padding:16px;font:13px monospace;
+ outline:none;direction:ltr;text-align:left;
+}
+textarea:focus{border-color:#e22}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button{
+ border:0;border-radius:9px;padding:13px 19px;
+ cursor:pointer;font-weight:bold;color:white;
+ background:#252525;transition:.2s;
+}
+button:hover{filter:brightness(1.25)}
+.primary{background:#e21b1b;flex:1}
+.upload{border:1px solid #444}
+#file{display:none}
+#result{height:85px}
+.status{text-align:center;color:#aaa;font-size:13px;min-height:20px}
+.copy{background:#e21b1b;width:100%;margin-top:12px}
+footer{text-align:center;color:#666;padding:30px;font-size:12px}
+@media(max-width:550px){
+ main{margin:38px auto}
+ .hero h1{font-size:32px}
+ .card{padding:15px}
+ header{padding:18px}
+}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">RAZ.</div>
+ <div class="tag">LOCAL SCRIPT HOSTING</div>
+</header>
+
+<main>
+ <section class="hero">
+  <h1>RAZ <span>CONVERTER</span></h1>
+  <p>حوّل كود Lua إلى رابط مباشر بسهولة</p>
+ </section>
+
+ <section class="card">
+  <div class="label">
+   <span>كود السكربت</span>
+   <span class="tag">LUA EDITOR</span>
+  </div>
+  <textarea id="code" placeholder="الصق كود Lua هنا..."></textarea>
+  <div class="actions">
+   <button class="upload" onclick="document.getElementById('file').click()">📁 رفع ملف</button>
+   <button class="primary" onclick="convert()">تحويل إلى رابط ↗</button>
+  </div>
+  <input type="file" id="file" accept=".lua,.txt">
+ </section>
+
+ <section class="card">
+  <div class="label">
+   <span>رابط السكربت</span>
+   <span class="tag">LODRSRST LINK</span>
+  </div>
+  <textarea id="result" readonly placeholder="سيظهر الرابط بعد التحويل..."></textarea>
+  <button class="copy" onclick="copyResult()">نسخ الرابط</button>
+ </section>
+
+ <p class="status" id="status">جاهز لاستقبال السكربت</p>
+</main>
+
+<footer>RAZ CONVERTER · LOCAL SCRIPT HOSTING</footer>
+
+<script>
+const codeBox=document.getElementById("code");
+const resultBox=document.getElementById("result");
+const statusBox=document.getElementById("status");
+
+document.getElementById("file").addEventListener("change",async e=>{
+ const file=e.target.files[0];
+ if(file){
+  codeBox.value=await file.text();
+  statusBox.textContent="تم تحميل الملف";
+ }
+});
+
+async function convert(){
+ const code=codeBox.value;
+ if(!code.trim()){
+  statusBox.textContent="اكتب الكود أولاً";
+  return;
+ }
+ statusBox.textContent="جاري إنشاء الرابط...";
+ try{
+  const response=await fetch("/.netlify/functions/script",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({code,name:"RAZ Script"})
+  });
+  const data=await response.json();
+  if(!response.ok)throw new Error(data.error||"فشل التحويل");
+  resultBox.value=data.url;
+  statusBox.textContent="تم إنشاء الرابط بنجاح";
+ }catch(error){
+  statusBox.textContent="حدث خطأ: "+error.message;
+ }
+}
+
+async function copyResult(){
+ if(!resultBox.value){
+  statusBox.textContent="لا يوجد رابط لنسخه";
+  return;
+ }
+ try{
+  await navigator.clipboard.writeText(resultBox.value);
+  statusBox.textContent="تم نسخ الرابط";
+ }catch{
+  resultBox.select();
+  document.execCommand("copy");
+  statusBox.textContent="تم النسخ";
+ }
+}
+</script>
+</body>
+</html>
